@@ -7,79 +7,84 @@ use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        //
+        return Produto::all();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function show($id)
     {
-        //
+        return Produto::find($id);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $produto = Produto::find($request->id);
+        
+        if(isset($produto) && count($produto) > 0){
+            return response()->json(['error' => 'Product already registered'], 400);
+        }
+        
+        $produto = new Produto;
+        $produto->referencia = $request->referencia;
+        $produto->descricao = $request->descricao;
+        $produto->preco = $request->preco;
+        $produto->categoria = $request->categoria;
+        $produto->promocao = $request->promocao;
+        $produto->genero = $request->genero ? $request->genero : '';
+        $produto->cabedal = $request->cabedal;
+        $produto->solado = $request->solado;
+        $produto->altura_salto = $request->altura_salto;
+        $produto->save();
+        // $produto = Produto::create([
+        //   'referencia' => $request->referencia,
+        //   'descricao' => $request->descricao,
+        //   'preco' => $request->preco,
+        //   'categoria' => $request->categoria,
+        //   'promocao' => $request->promocao,
+        //   'genero' => $request->genero,
+        //   'cabedal' => $request->cabedal,
+        //   'solado' => $request->solado,
+        //   'altura_salto' => $request->altura_salto,
+          
+        // ]);
+        return $produto;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Produto $produto)
+    
+
+
+    public function update(Request $request, $id)
     {
-        //
+        $produto = Produto::find($id);
+
+        if(!$produto){
+            return response()->json(['error' => 'produto not found'], 400);
+        }
+
+        $produto->fill($request->all());
+
+        if(!$produto->save()){
+            return response()->json(['error' => 'Error on processing'], 500);
+        }
+
+        return $produto;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Produto $produto)
+    public function destroy($id)
     {
-        //
-    }
+        $produto = Produto::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Produto $produto)
-    {
-        //
-    }
+        if(!$produto){
+            return response()->json(['error' => 'produto not found'], 400);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Produto $produto)
-    {
-        //
+
+        if(!$produto->destroy()){
+            return response()->json(['error' => 'Error on processing'], 500);
+        }
+
+        return response()->json(['deleted' => true,'status' => 'Deleted successfully'], 200);
     }
 }

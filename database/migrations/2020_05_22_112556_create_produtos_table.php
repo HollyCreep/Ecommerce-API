@@ -23,7 +23,12 @@ class CreateProdutosTable extends Migration
             $table->integer('isAddedToCart');
             $table->integer('isAddedBtn');
             $table->integer('isFavourite');
-            $table->string('img');
+            $table->integer('categoria');
+            $table->double('promocao', 8, 2);
+            $table->string('genero');
+            $table->string('cabedal');
+            $table->string('solado');
+            $table->string('altura_salto');
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
 });
 Route::resource('user', 'UserController');
+Route::resource('produto', 'ProdutoController');
 Route::put('user', 'UserController@update');
 
 // Rotas autenticadas
