@@ -7,27 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class Produto extends Model
 {
     protected $attributes = [
-        'id_fornecedor' => 1,
+        'fornecedor_id' => 0,
         'referencia' => '',
         'descricao' => '',
         'preco' => 0,
-        'categoria' => 0,
+        'ratings' => 0,
+        'reviews' => 0,
+        'categorias_produtos' => 0,
+        'grade' => 0,
         'promocao' => 0,
-        'genero' => 'M',
+        'genero' => '',
         'cabedal' => '',
         'solado' => '',
         'altura_salto' => '',
     ];
 
-    protected $fillable = [
-        'referencia',
-        'descricao',
-        'preco',
-        'categoria',
-        'promocao',
-        'genero',
-        'cabedal',
-        'solado',
-        'altura_salto'
-    ];
+
+    public function fotos (){
+        return $this->hasMany('App\FotosProduto');
+    }
 }

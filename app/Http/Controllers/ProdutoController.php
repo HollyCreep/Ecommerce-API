@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+// use App\FotosProduto;
 use App\Produto;
+// use App\FotosProdutos;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\FuncCall;
 
 class ProdutoController extends Controller
 {
@@ -16,6 +19,7 @@ class ProdutoController extends Controller
     public function show($id)
     {
         return Produto::find($id);
+        
     }
 
     public function store(Request $request)
@@ -27,29 +31,23 @@ class ProdutoController extends Controller
         }
         
         $produto = new Produto;
+        $produto->fornecedor_id = intval($request->idFornecedor);
         $produto->referencia = $request->referencia;
         $produto->descricao = $request->descricao;
-        $produto->preco = $request->preco;
-        $produto->categoria = $request->categoria;
-        $produto->promocao = $request->promocao;
+        $produto->preco = doubleval($request->preco);
+        $produto->categorias_produtos = intval($request->categoria);
         $produto->genero = $request->genero ? $request->genero : '';
-        $produto->cabedal = $request->cabedal;
-        $produto->solado = $request->solado;
-        $produto->altura_salto = $request->altura_salto;
-        $produto->save();
-        // $produto = Produto::create([
-        //   'referencia' => $request->referencia,
-        //   'descricao' => $request->descricao,
-        //   'preco' => $request->preco,
-        //   'categoria' => $request->categoria,
-        //   'promocao' => $request->promocao,
-        //   'genero' => $request->genero,
-        //   'cabedal' => $request->cabedal,
-        //   'solado' => $request->solado,
-        //   'altura_salto' => $request->altura_salto,
-          
-        // ]);
-        return $produto;
+        $produto->promocao = $request->promocao ? doubleval($request->promocao) : 0;
+        $produto->cabedal = $request->materialCabedal;
+        $produto->solado = $request->materialSolado;
+        $produto->altura_salto = $request->alturaSalto;
+        if($produto->save()){
+            foreach ($request->fotosProduto as $key => $foto) {
+                $fotosProduto = new FotosProdutoController();
+                $fotosProduto->store($produto->id, $foto['src']);
+            }
+        }
+        return $this->getAllProdutosFornecedor(0);
     }
 
     
@@ -86,5 +84,38 @@ class ProdutoController extends Controller
         }
 
         return response()->json(['deleted' => true,'status' => 'Deleted successfully'], 200);
+    }
+
+    public function fotos($id){
+        return Produto::find($id)->fotos;
+    }
+
+    public function getAllProdutosFornecedor($idFornecedor){
+        $retorno = [];
+        if($produtos = \DB::table('produtos')
+                        ->leftJoin('produtos_fotos','produto_id','=','id')
+                        ->where(['fornecedor_id' => $idFornecedor])
+                        ->orderBy('id', 'ASC')
+                        ->get())
+        {
+            foreach ($produtos as $key => $produto) {
+                $foto = [
+                    'url' => $produto->url ? $produto->url : '',
+                    'nome' => $produto->nome_foto ? $produto->nome_foto : ''
+                ];
+
+                if(isset($retorno[$produto->id])){
+                    array_push($retorno[$produto->id]->imagens, $foto);
+                }else{
+                    $produto->imagens = [];
+                    array_push($produto->imagens, $foto);
+                    unset($produto->url);
+                    unset($produto->nome_foto);
+                    $retorno[$produto->id] = $produto;
+                }
+            }
+        }
+        return $retorno;
+        
     }
 }

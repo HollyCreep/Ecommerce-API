@@ -21,6 +21,12 @@ Route::group(['prefix' => 'auth'], function () {
 });
 Route::resource('user', 'UserController');
 Route::resource('produto', 'ProdutoController');
+Route::get('produtos/{idFornecedor?}', 'ProdutoController@getAllProdutosFornecedor');
+Route::get('categorias', 'ProdutoController@categoria');
+Route::get('fotos/{id}', 'ProdutoController@fotos');
+Route::get('produtos', 'CategoriasController@produtos');
+Route::resource('foto', 'FotosProdutoController');
+Route::resource('categoria', 'CategoriasController');
 Route::put('user', 'UserController@update');
 
 // Rotas autenticadas
