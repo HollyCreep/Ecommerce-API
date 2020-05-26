@@ -42,12 +42,20 @@ class ProdutoController extends Controller
         $produto->solado = $request->materialSolado;
         $produto->altura_salto = $request->alturaSalto;
         if($produto->save()){
-            foreach ($request->fotosProduto as $key => $foto) {
-                $fotosProduto = new FotosProdutoController();
-                $fotosProduto->store($produto->id, $foto['src']);
+            if($request->fotosProduto){
+                foreach ($request->fotosProduto as $key => $foto) {
+                    $fotosProduto = new FotosProdutoController();
+                    $fotosProduto->store($produto->id, $foto['src']);
+                }
+            }
+
+            $grade = new GradesProdutoController();
+            $sequencia = $grade->getMaxSequencia();
+            for ($i=$request->tam_min; $i < $request->tam_max; $i++) {
+                $grade->store($produto->id, $i, $sequencia);
             }
         }
-        return $this->getAllProdutosFornecedor(0);
+        return $this->getAllProdutosFornecedor($request->idFornecedor);
     }
 
     
@@ -79,7 +87,7 @@ class ProdutoController extends Controller
         }
 
 
-        if(!$produto->destroy()){
+        if(!$produto->destroy($id)){
             return response()->json(['error' => 'Error on processing'], 500);
         }
 
@@ -88,6 +96,10 @@ class ProdutoController extends Controller
 
     public function fotos($id){
         return Produto::find($id)->fotos;
+    }
+
+    public function grades($id){
+        return Produto::find($id)->grades;
     }
 
     public function getAllProdutosFornecedor($idFornecedor){
@@ -105,10 +117,10 @@ class ProdutoController extends Controller
                 ];
 
                 if(isset($retorno[$produto->id])){
-                    array_push($retorno[$produto->id]->imagens, $foto);
+                    array_push($retorno[$produto->id]->fotosProduto, $foto);
                 }else{
-                    $produto->imagens = [];
-                    array_push($produto->imagens, $foto);
+                    $produto->fotosProduto = [];
+                    array_push($produto->fotosProduto, $foto);
                     unset($produto->url);
                     unset($produto->nome_foto);
                     $retorno[$produto->id] = $produto;

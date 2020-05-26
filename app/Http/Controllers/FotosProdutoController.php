@@ -13,7 +13,6 @@ class FotosProdutoController extends Controller
         return FotosProduto::all();
     }
 
-
     public function store($produto_id,$url, $nomeFoto = '')
     {
 
@@ -25,18 +24,15 @@ class FotosProdutoController extends Controller
         return $foto->save();
     }
 
-
-    public function show($id)
+    public function show()
     {
-        return FotosProduto::find($id);
+        // return FotosProduto::find($id);
     }
-
 
     public function update(Request $request, FotosProduto $fotosProduto)
     {
         //
     }
-
 
     public function destroy(FotosProduto $fotosProduto)
     {
