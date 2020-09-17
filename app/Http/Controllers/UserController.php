@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function index(){
@@ -18,11 +18,15 @@ class UserController extends Controller
     public function store(Request $request){
         $user = User::where(['email' => $request->email])->get();
         
-        if($user){
+        if(count($user) > 0){
             return response()->json(['error' => 'Mail address already registered'], 400);
         }
         
-        $user = User::create($request->all());
+        $user = User::create([
+            'name' => $request->name,
+            'email' =>$request->email,
+            'password' => Hash::make($request->password),
+        ]);
         return $user;
     }
 
